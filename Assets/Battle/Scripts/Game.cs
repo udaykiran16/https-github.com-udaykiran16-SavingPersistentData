@@ -31,17 +31,21 @@ public class Game : MonoBehaviour
 
     void Save()
     {
+        //creating json object
         JSONObject playerJson = new JSONObject();
         playerJson.Add(shots);
         playerJson.Add(hits);
+        //save json to computer
         string path = Application.persistentDataPath + "/PlayerSave.json";
         File.WriteAllText(path,playerJson.ToString());
     }
 
     void Load()
     {
+        //reading from the same path
         string path = Application.persistentDataPath + "/PlayerSave.json";
         string jsonString = File.ReadAllText(path);
+        //set values
         JSONObject playerJson = (JSONObject)JSON.Parse(jsonString);
         hits = PlayerPrefs.GetInt("hits", 0);
         shots = PlayerPrefs.GetInt("shots", 0);
@@ -55,10 +59,7 @@ public class Game : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Confined;
-        hits = PlayerPrefs.GetInt("hits", 0);
-        shots = PlayerPrefs.GetInt("shots", 0);
-        shotsText.text = shots.ToString();
-        hitsText.text = hits.ToString();
+            
     }
 
     public void Pause()
