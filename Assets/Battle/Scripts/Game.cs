@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using SimpleJSON;
+using System.IO;
+
 
 public class Game : MonoBehaviour
 {
@@ -26,6 +29,29 @@ public class Game : MonoBehaviour
         Pause();
     }
 
+    void Save()
+    {
+        JSONObject playerJson = new JSONObject();
+        playerJson.Add(shots);
+        playerJson.Add(hits);
+        string path = Application.persistentDataPath + "/PlayerSave.json";
+        File.WriteAllText(path,playerJson.ToString());
+    }
+
+    void Load()
+    {
+        string path = Application.persistentDataPath + "/PlayerSave.json";
+        string jsonString = File.ReadAllText(path);
+        JSONObject playerJson = (JSONObject)JSON.Parse(jsonString);
+        hits = PlayerPrefs.GetInt("hits", 0);
+        shots = PlayerPrefs.GetInt("shots", 0);
+        shotsText.text = shots.ToString();
+        hitsText.text = hits.ToString();
+
+
+    }
+
+    
     void Start()
     {
         Cursor.lockState = CursorLockMode.Confined;
