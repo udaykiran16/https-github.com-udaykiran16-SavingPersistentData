@@ -47,7 +47,7 @@ public class Game : MonoBehaviour
         shotsText.text = shots.ToString();
         hitsText.text = hits.ToString();
 
-      
+        SaveGame();
 
     }
 
