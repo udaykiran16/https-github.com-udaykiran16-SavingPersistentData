@@ -19,7 +19,7 @@ public class Gun : MonoBehaviour
     private int maxUpRotation = -60;
     private int minUpRotation = 0;
     private float cooldown = 0.5f;
-    private float cooldownTimer = 5;
+    private float cooldownTimer = 1;
 
     // Update is called once per frame
     void Update()
