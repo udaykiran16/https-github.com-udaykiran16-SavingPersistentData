@@ -1,16 +1,18 @@
-﻿
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
+
+
 
 public class Game : MonoBehaviour
 {
     public List<GameObject> bullets = new List<GameObject>();
-    public int shots;
-    public int hits;
 
+    public Save save;
     [SerializeField]
     private Text hitsText;
     [SerializeField]
@@ -26,14 +28,22 @@ public class Game : MonoBehaviour
         Pause();
     }
 
+
+    public string dataPath;
+    
     void Start()
     {
+        dataPath = Path.Combine(Application.dataPath, "items.txt");
         Cursor.lockState = CursorLockMode.Confined;
-        hits = PlayerPrefs.GetInt("hits", 0);
-        shots = PlayerPrefs.GetInt("shots", 0);
-        shotsText.text = shots.ToString();
-        hitsText.text = hits.ToString();
-    }
+       // save.hits =LoadCharacter(dataPath);
+        //  save.shots = Loadcharacter(dataPath);
+       
+        shotsText.text = save.shots.ToString();
+        hitsText.text = save.hits.ToString();
+     
+     }
+
+  
 
     public void Pause()
     {
@@ -69,32 +79,51 @@ public class Game : MonoBehaviour
                 Pause();
             }
         }
+        SaveCharacter(save.hits, dataPath);
+        SaveCharacter(save.shots, dataPath);
     }
+
+    static void SaveCharacter(int a, string path)
+    {
+        string jsonString = JsonUtility.ToJson(a);
+
+        using (StreamWriter streamWriter = File.CreateText(path))
+        {
+            streamWriter.Write(jsonString);
+        }
+    }
+
+    static Save LoadCharacter(string path)
+    {
+        using (StreamReader streamReader = File.OpenText(path))
+        {
+            string jsonString = streamReader.ReadToEnd();
+            return JsonUtility.FromJson<Save>(jsonString);
+        }
+    }
+   
+
 
 
 
     public void AddShot()
     {
-
-        shots = PlayerPrefs.GetInt("shots", 0);
-        shots += 1;
-        PlayerPrefs.SetInt("shots", shots);
-        shotsText.text = shots.ToString();
+        save.shots++;
+        shotsText.text = "Shots: " + save.shots;
     }
 
     public void AddHit()
     {
-        hits = PlayerPrefs.GetInt("hits", 0);
-        hits += 1;
-        PlayerPrefs.SetInt("hits", hits);
-        hitsText.text = hits.ToString();
-    }
-
-    public void DeleteScores()
-    {
-        PlayerPrefs.DeleteAll();
+        save.hits++;
+        hitsText.text = "Hits: " + save.hits;
     }
 
 
-
+  
 }
+
+
+
+
+
+
