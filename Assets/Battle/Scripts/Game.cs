@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
+using SimpleJSON;
 
 
 
@@ -12,7 +11,12 @@ public class Game : MonoBehaviour
 {
     public List<GameObject> bullets = new List<GameObject>();
 
-    public Save save;
+    [SerializeField]
+    private int shots;
+
+    [SerializeField]
+    private int hits;
+
     [SerializeField]
     private Text hitsText;
     [SerializeField]
@@ -28,22 +32,45 @@ public class Game : MonoBehaviour
         Pause();
     }
 
-
-    public string dataPath;
     
     void Start()
     {
-        dataPath = Path.Combine(Application.dataPath, "items.txt");
+ 
         Cursor.lockState = CursorLockMode.Confined;
-       // save.hits =LoadCharacter(dataPath);
-        //  save.shots = Loadcharacter(dataPath);
-       
-        shotsText.text = save.shots.ToString();
-        hitsText.text = save.hits.ToString();
+        if(PlayerPrefs.HasKey(GameSettings.PLAYER_STATS_PP) == false)
+        {
+            InitializePlayerStats();
+        }
+        else
+        {        //Now lets get our player prefs saves. We know that it has been initialized so we can get it from the player prefs.
+            JSONNode PlayerStats = JSON.Parse(PlayerPrefs.GetString(GameSettings.PLAYER_STATS_PP));
+            // Get the shots saved
+            shots = PlayerStats["PlayerStats"]["shots"].AsInt;
+            // Get the hits saved
+            hits = PlayerStats["PlayerStats"]["hits"].AsInt;
+            // Display shots and hits text to UI
+            shotsText.text = shots.ToString();
+            hitsText.text = hits.ToString();
+
+        }
      
      }
 
-  
+  public void InitializePlayerStats()
+    {
+        // create a new JSON
+        JSONNode initializePlayerStatsDataJSON = JSON.Parse("{}");
+
+        initializePlayerStatsDataJSON["PlayerStats"]["shots"].AsInt = 0;
+        initializePlayerStatsDataJSON["PlayerStats"]["hits"].AsInt = 0;
+
+        //Now lets save it
+        PlayerPrefs.SetString(GameSettings.PLAYER_STATS_PP, initializePlayerStatsDataJSON.ToJSON(1));
+        PlayerPrefs.Save();
+
+        //Lets debug it to be sure
+        Debug.Log("Initialized Player data: " + PlayerPrefs.GetString(GameSettings.PLAYER_STATS_PP));
+    }
 
     public void Pause()
     {
@@ -79,28 +106,10 @@ public class Game : MonoBehaviour
                 Pause();
             }
         }
-        SaveCharacter(save.hits, dataPath);
-        SaveCharacter(save.shots, dataPath);
+
     }
 
-    static void SaveCharacter(int a, string path)
-    {
-        string jsonString = JsonUtility.ToJson(a);
 
-        using (StreamWriter streamWriter = File.CreateText(path))
-        {
-            streamWriter.Write(jsonString);
-        }
-    }
-
-    static Save LoadCharacter(string path)
-    {
-        using (StreamReader streamReader = File.OpenText(path))
-        {
-            string jsonString = streamReader.ReadToEnd();
-            return JsonUtility.FromJson<Save>(jsonString);
-        }
-    }
    
 
 
@@ -108,14 +117,42 @@ public class Game : MonoBehaviour
 
     public void AddShot()
     {
-        save.shots++;
-        shotsText.text = "Shots: " + save.shots;
+        //Now lets get our player prefs saves. We know that it has been initialized so we can get it from the player prefs.
+        JSONNode PlayerStats = JSON.Parse(PlayerPrefs.GetString(GameSettings.PLAYER_STATS_PP));
+
+        // Get the shots saved
+
+        shots = PlayerStats["PlayerStats"]["shots"].AsInt;
+        // Additon of shots
+        shots += 1;
+
+        //Now lets save it
+        PlayerStats["PlayerStats"]["shots"].AsInt = shots;
+        PlayerPrefs.SetString(GameSettings.PLAYER_STATS_PP, PlayerStats.ToJSON(1));
+        PlayerPrefs.Save();
+
+        // Display shots text to UI
+        shotsText.text = shots.ToString();
     }
 
     public void AddHit()
     {
-        save.hits++;
-        hitsText.text = "Hits: " + save.hits;
+        //Now lets get our player prefs saves. We know that it has been initialized so we can get it from the player prefs.
+        JSONNode PlayerStats = JSON.Parse(PlayerPrefs.GetString(GameSettings.PLAYER_STATS_PP));
+
+        // Get the hits saved
+
+        hits = PlayerStats["PlayerStats"]["hits"].AsInt;
+        // Additon of shots
+        hits += 1;
+
+        //Now lets save it
+        PlayerStats["PlayerStats"]["hits"].AsInt = hits;
+        PlayerPrefs.SetString(GameSettings.PLAYER_STATS_PP, PlayerStats.ToJSON(1));
+        PlayerPrefs.Save();
+
+        // Display shots text to UI
+        hitsText.text = hits.ToString();
     }
 
 
